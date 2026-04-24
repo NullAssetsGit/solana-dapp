@@ -3,10 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solana DApp</title>
+  <title>Solana Wallet</title>
+  <style>
+    body { 
+      margin: 0; 
+      padding: 20px; 
+      font-family: Arial; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      min-height: 100vh;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #00d4aa;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
+  <h1>🪙 Solana Test</h1>
+  <button id="connect">Connect Wallet</button>
+  <div id="status">Ready...</div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@solana/web3.js": "https://cdn.skypack.dev/@solana/web3.js@1.87.6"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { Connection, PublicKey } from '@solana/web3.js';
+    
+    const status = document.getElementById('status');
+    const connectBtn = document.getElementById('connect');
+    
+    // Тест подключения
+    const connection = new Connection('https://api.mainnet-beta.solana.com');
+    
+    status.textContent = 'Solana Web3.js  ✅';
+    console.log('✅ Solana ');
+    
+    connectBtn.onclick = async () => {
+      try {
+        status.textContent = ' RPC...';
+        const version = await connection.getVersion();
+        status.textContent = `✅ RPC v${version['feature-set']}`;
+      } catch (error) {
+        status.textContent = `❌ Error: ${error.message}`;
+      }
+    };
+  </script>
 </body>
 </html>
