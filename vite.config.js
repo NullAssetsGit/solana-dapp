@@ -1,17 +1,24 @@
-﻿# Обновить vite.config.js:
-'import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
+﻿import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
 export default defineConfig({
   plugins: [react()],
-  build: { 
-    rollupOptions: { 
+  define: {
+    global: 'globalThis',
+  },
+  build: {
+    rollupOptions: {
       external: [
-        "rpc-websockets",
-        "i18next",
-        "react-i18next"
-      ] 
-    } 
+        'rpc-websockets',
+        'i18next',
+        '@solana/web3.js',
+        'buffer',
+        'crypto',
+        'stream'
+      ]
+    }
+  },
+  optimizeDeps: {
+    exclude: ['@solana/web3.js']
   }
-})' | Out-File -FilePath vite.config.js -Encoding utf8
-
-npm run build
+})
