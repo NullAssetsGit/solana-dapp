@@ -6,272 +6,212 @@
     <title>NULL_ASSET | The Void Protocol</title>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <style>
-        :root { --main-color: #00ff41; --bg-color: #000; }
+        :root { --c: #00ff41; --bg: #000; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            background: var(--bg-color); 
-            color: var(--main-color); 
-            font-family: 'Courier New', Courier, monospace; 
-            margin: 0; 
-            padding: 0; 
+            background: var(--bg); 
+            color: var(--c); 
+            font-family: 'Courier New', monospace; 
+            min-height: 100vh; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            min-height: 100vh; 
-            overflow-x: hidden; 
-        }
-        #matrix-bg { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            z-index: -1; 
-            opacity: 0.1; 
         }
         #app { 
-            border: 1px solid var(--main-color); 
+            border: 1px solid var(--c); 
             padding: 40px; 
-            max-width: 700px; 
+            max-width: 600px; 
             background: rgba(0,0,0,0.9); 
-            box-shadow: 0 0 30px rgba(0,255,65,0.2); 
+            box-shadow: 0 0 30px rgba(0,255,65,0.3); 
             text-align: center; 
             margin: 20px; 
         }
         h1 { 
             font-size: 2.5em; 
-            letter-spacing: 10px; 
-            border-bottom: 1px solid var(--main-color); 
-            padding-bottom: 10px; 
-            margin-top: 0; 
+            letter-spacing: 8px; 
+            border-bottom: 1px solid var(--c); 
+            padding-bottom: 15px; 
+            margin-bottom: 30px; 
         }
         .manifesto { 
             text-align: left; 
-            font-size: 0.85em; 
+            font-size: 0.9em; 
             line-height: 1.6; 
-            border-left: 2px solid var(--main-color); 
-            padding-left: 20px; 
+            border-left: 3px solid var(--c); 
+            padding-left: 25px; 
             margin: 30px 0; 
             color: #a0ffa0; 
         }
-        .controls { margin-top: 30px; }
         input { 
             background: transparent; 
-            border: 1px solid var(--main-color); 
-            color: var(--main-color); 
-            padding: 12px; 
-            width: 120px; 
+            border: 2px solid var(--c); 
+            color: var(--c); 
+            padding: 15px; 
+            width: 140px; 
+            font-size: 1.4em; 
             text-align: center; 
-            font-size: 1.2em; 
-            outline: none; 
-            margin-bottom: 20px; 
+            margin: 20px 10px; 
         }
         button { 
-            background: var(--main-color); 
+            background: var(--c); 
             color: #000; 
             border: none; 
-            padding: 15px 40px; 
+            padding: 18px 50px; 
             font-weight: bold; 
             cursor: pointer; 
             text-transform: uppercase; 
-            transition: 0.3s; 
-            font-family: inherit;
+            font-size: 1.1em; 
+            transition: all 0.3s; 
+            font-family: inherit; 
+            margin-top: 20px; 
         }
-        button:hover { 
+        button:hover:not(:disabled) { 
             background: #000; 
-            color: var(--main-color); 
-            box-shadow: 0 0 15px var(--main-color); 
+            color: var(--c); 
+            box-shadow: 0 0 20px var(--c); 
         }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        button:disabled { 
+            opacity: 0.4; 
+            cursor: not-allowed; 
         }
         #status { 
-            margin-top: 20px; 
-            font-size: 0.7em; 
-            opacity: 0.7; 
+            margin-top: 25px; 
+            font-size: 0.85em; 
+            min-height: 25px; 
             word-break: break-all; 
-            min-height: 1.2em;
         }
-        .lang-switch { 
-            margin-top: 20px; 
-            font-size: 0.7em; 
+        .langs { 
+            margin-top: 30px; 
+            font-size: 0.8em; 
         }
-        .lang-switch span { 
+        .langs span { 
             cursor: pointer; 
-            margin: 0 5px; 
+            margin: 0 8px; 
             text-decoration: underline; 
+            padding: 4px 8px; 
+            border-radius: 3px; 
+            transition: 0.2s; 
         }
-        .lang-switch span:hover {
-            color: #fff;
+        .langs span:hover { 
+            background: rgba(0,255,65,0.1); 
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
+        @keyframes pulse { 
+            0%,100%{opacity:.6} 
+            50%{opacity:1} 
         }
-        #status.connecting {
-            animation: pulse 1.5s infinite;
-        }
+        .pulse { animation: pulse 1.5s infinite; }
     </style>
 </head>
 <body>
-
-<div id="app">
-    <h1 id="ui-title">NULL_ASSET</h1>
-    
-    <div class="manifesto" id="ui-manifesto">
+    <div id="app">
+        <h1 id="title">NULL_ASSET</h1>
+        
+        <div class="manifesto" id="text"></div>
+        
+        <div>
+            <input type="number" id="sol" value="3.69" min="0.1" step="0.01">
+            <div style="font-size:1.4em;margin:20px 0">SOL</div>
+            <br>
+            <button id="burn" onclick="burn()">🔥 INITIATE SACRIFICE</button>
+        </div>
+        
+        <div id="status">System ready...</div>
+        
+        <div class="langs">
+            <span onclick="lang('en')">EN</span>
+            <span onclick="lang('ua')">UA</span>
+            <span onclick="lang('ru')">RU</span>
+            <span onclick="lang('de')">DE</span>
+            <span onclick="lang('pl')">PL</span>
+        </div>
     </div>
-
-    <div class="controls">
-        <input type="number" id="amount" value="3.69" step="0.1" min="0.1">
-        <span style="font-size: 1.2em; margin-left: 10px;">SOL</span>
-        <br><br>
-        <button onclick="executeSacrifice()" id="ui-btn">Initiate Sacrifice</button>
-    </div>
-
-    <div id="status">System Standby...</div>
-
-    <div class="lang-switch">
-        <span onclick="setLanguage('en')">EN</span> | 
-        <span onclick="setLanguage('ua')">UA</span> | 
-        <span onclick="setLanguage('ru')">RU</span> | 
-        <span onclick="setLanguage('de')">DE</span> | 
-        <span onclick="setLanguage('pl')">PL</span>
-    </div>
-</div>
 
 <script>
-    const OPERATOR_ADDR = "5T3ynidN1S4sHGTWF3RQ6NVTFgvMznkVJjZBfvcQPnrC";
-    const BURN_ADDR = "11111111111111111111111111111111";
+const ADDR = "5T3ynidN1S4sHGTWF3RQ6NVTFgvMznkVJjZBfvcQPnrC";
+const BURN = "11111111111111111111111111111111";
+
+const LANG = {
+    en: { t:"NULL_ASSET", b:"🔥 INITIATE SACRIFICE", s:"Connect wallet...", m:"Money is noise. Void is signal. 66.6% BURN FOREVER. 33.3% protocol." },
+    ua: { t:"NULL_ASSET", b:"🔥 ПРИНЕСТИ ЖЕРТВУ", s:"Підключіть гаманець...", m:"Гроші — шум. Пустота — сигнал. 66.6% СПАЛЮЄТЬСЯ НАЗАВЖДИ." },
+    ru: { t:"NULL_ASSET", b:"🔥 ПРИНЕСТИ ЖЕРТВУ", s:"Подключите кошелек...", m:"Деньги — шум. Пустота — сигнал. 66.6% СЖИГАЕТСЯ НАВСЕГДА." },
+    de: { t:"NULL_ASSET", b:"🔥 OPFER BRINGEN", s:"Wallet verbinden...", m:"Geld ist Lärm. Leere ist Signal. 66.6% VERBRENNT FÜR IMMER." },
+    pl: { t:"NULL_ASSET", b:"🔥 ZŁÓŻ OFIARĘ", s:"Podłącz portfel...", m:"Pieniądze to hałas. Pustka to sygnał. 66.6% SPALONE NA ZAWSZE." }
+};
+
+let currentLang = 'en';
+
+function lang(l) {
+    currentLang = l;
+    const t = LANG[l];
+    document.getElementById('title').textContent = t.t;
+    document.getElementById('burn').textContent = t.b;
+    document.getElementById('text').textContent = t.m;
+    document.getElementById('status').textContent = t.s;
+}
+
+function $(id) { return document.getElementById(id); }
+
+async function burn() {
+    const status = $('status');
+    const btn = $('burn');
+    const sol = parseFloat($('sol').value);
     
-    const translations = {
-        en: {
-            title: "NULL_ASSET",
-            btn: "Initiate Sacrifice",
-            status: "Waiting for wallet...",
-            manifesto: "Money is noise. The Void is the signal. Capital is an illusion that shackles the mind. By burning, we release the energy of flow. 66.6% of your contribution will be permanently annihilated from the blockchain. 33.3% remains to protect and maintain the Void Protocol. This is not an investment. This is an awakening."
-        },
-        ua: {
-            title: "NULL_ASSET",
-            btn: "Принести жертву",
-            status: "Очікування гаманця...",
-            manifesto: "Гроші — це шум. Пустота — це сигнал. Капітал — це ілюзія, що сковує розум. Спалюючи, ми вивільняємо енергію потоку. 66.6% твого внеску буде назавжди анігільовано в блокчейні. 33.3% залишається для захисту та підтримки Протоколу Пустоти. Це не інвестиція. Це пробудження."
-        },
-        ru: {
-            title: "NULL_ASSET",
-            btn: "Принести жертву",
-            status: "Ожидание кошелька...",
-            manifesto: "Деньги — это шум. Пустота — это сигнал. Капитал — это иллюзия, сковывающая разум. Сжигая, мы высвобождаем энергию потока. 66.6% твоего вклада будет навсегда аннигилировано в блокчейне. 33.3% остается для защиты и поддержания Протокола Пустоты. Это не инвестиция. Это пробуждение."
-        },
-        de: {
-            title: "NULL_ASSET",
-            btn: "Opfer bringen",
-            status: "Warte auf Wallet...",
-            manifesto: "Geld ist Lärm. Die Leere ist das Signal. Kapital ist eine Illusion, die den Geist fesselt. Durch das Verbrennen setzen wir die Energie des Flusses frei. 66,6 % Ihres Beitrags werden dauerhaft aus der Blockchain vernichtet. 33,3 % bleiben zum Schutz und zur Aufrechterhaltung des Void-Protokolls bestehen. Dies ist keine Investition. Dies ist ein Erwachen."
-        },
-        pl: {
-            title: "NULL_ASSET",
-            btn: "Złóż ofiarę",
-            status: "Oczekiwanie na portfel...",
-            manifesto: "Pieniądze to hałas. Pustka to sygnał. Kapitał to iluzja, która pęta umysł. Spalając, uwalniamy energię przepływu. 66,6% Twojego wkładu zostanie na zawsze unicestwione w blockchainie. 33,3% pozostaje na ochronę i utrzymanie Protokołu Pustki. To nie jest inwestycja. To przebudzenie."
-        }
-    };
-
-    function setLanguage(lang) {
-        const title = document.getElementById('ui-title');
-        const btn = document.getElementById('ui-btn');
-        const manifesto = document.getElementById('ui-manifesto');
-        const status = document.getElementById('status');
+    if (sol < 0.1) return status.textContent = "❌ MIN 0.1 SOL";
+    
+    let wallet = window.phantom?.solana || window.solana || window.solflare;
+    if (!wallet) return status.textContent = "❌ NO WALLET. Install Phantom";
+    
+    try {
+        btn.disabled = true;
+        status.textContent = "🔗 Connecting...";
+        status.classList.add('pulse');
         
-        title.innerText = translations[lang].title;
-        btn.innerText = translations[lang].btn;
-        manifesto.innerText = translations[lang].manifesto;
-        status.innerText = translations[lang].status;
-    }
-
-    // Auto-detect language
-    const userLang = navigator.language.split('-')[0];
-    setLanguage(translations[userLang] ? userLang : 'en');
-
-    async function executeSacrifice() {
-        const status = document.getElementById('status');
-        const btn = document.getElementById('ui-btn');
-        const amountInput = parseFloat(document.getElementById('amount').value);
-
-        if (amountInput < 0.1) {
-            status.innerText = "ERROR: Minimum 0.1 SOL required";
-            return;
-        }
-
-        // Enhanced wallet detection
-        let provider = window.phantom?.solana || window.solana || window.solflare;
+        await wallet.connect();
+        const pubkey = wallet.publicKey.toString();
         
-        if (!provider) {
-            status.innerText = "ERROR: No Solana wallet found. Install Phantom, Solflare or Backpack.";
-            return;
-        }
-
-        try {
-            // Disable button during operation
-            btn.disabled = true;
-            
-            status.innerText = "Connecting to the Void...";
-            status.classList.add('connecting');
-            
-            // Connect wallet
-            await provider.connect();
-            const publicKey = provider.publicKey.toString();
-
-            const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
-            
-            status.innerText = "Preparing sacrifice...";
-            
-            const lamports = Math.floor(amountInput * solanaWeb3.LAMPORTS_PER_SOL);
-            const burnAmt = Math.floor(lamports * 0.666);
-            const opAmt = Math.floor(lamports * 0.333);
-
-            const transaction = new solanaWeb3.Transaction().add(
-                solanaWeb3.SystemProgram.transfer({
-                    fromPubkey: new solanaWeb3.PublicKey(publicKey),
-                    toPubkey: new solanaWeb3.PublicKey(BURN_ADDR),
-                    lamports: burnAmt,
-                }),
-                solanaWeb3.SystemProgram.transfer({
-                    fromPubkey: new solanaWeb3.PublicKey(publicKey),
-                    toPubkey: new solanaWeb3.PublicKey(OPERATOR_ADDR),
-                    lamports: opAmt,
-                })
-            );
-
-            status.innerText = "Awaiting signature...";
-            
-            const { blockhash } = await connection.getLatestBlockhash();
-            transaction.recentBlockhash = blockhash;
-            transaction.feePayer = new solanaWeb3.PublicKey(publicKey);
-
-            const { signature } = await provider.signAndSendTransaction(transaction);
-            
-            status.innerText = `SACRIFICE ACCEPTED. Sig: ${signature}`;
-            status.classList.remove('connecting');
-            
-            // Re-enable button after success
-            btn.disabled = false;
-            
-            // Open explorer
-            window.open(`https://solscan.io/tx/${signature}`, '_blank');
-            
-        } catch (err) {
-            status.innerText = `ABORTED: ${err.message}`;
-            status.classList.remove('connecting');
-            btn.disabled = false;
-            console.error('Sacrifice error:', err);
-        }
+        const conn = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+        const lamports = Math.floor(sol * solanaWeb3.LAMPORTS_PER_SOL);
+        const burnAmt = Math.floor(lamports * 0.666);
+        const opAmt = Math.floor(lamports - burnAmt);
+        
+        const tx = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: new solanaWeb3.PublicKey(pubkey),
+                toPubkey: new solanaWeb3.PublicKey(BURN),
+                lamports: burnAmt
+            }),
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: new solanaWeb3.PublicKey(pubkey),
+                toPubkey: new solanaWeb3.PublicKey(ADDR),
+                lamports: opAmt
+            })
+        );
+        
+        status.textContent = "📝 Sign transaction...";
+        const { blockhash } = await conn.getLatestBlockhash();
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = new solanaWeb3.PublicKey(pubkey);
+        
+        const { signature } = await wallet.signAndSendTransaction(tx);
+        status.textContent = `✅ SACRIFICE COMPLETE: ${signature.slice(0,20)}...`;
+        status.classList.remove('pulse');
+        btn.disabled = false;
+        
+        window.open(`https://solscan.io/tx/${signature}`);
+        
+    } catch(e) {
+        status.textContent = `❌ ERROR: ${e.message}`;
+        status.classList.remove('pulse');
+        btn.disabled = false;
     }
+}
 
-    // Auto-connect if wallet is already connected
-    if (window.solana?.isConnected || window.phantom?.solana?.isConnected) {
-        document.getElementById('status').innerText = "Wallet detected. Ready for sacrifice.";
-    }
+// Auto lang
+lang(navigator.language.startsWith('uk') ? 'ua' : 
+     navigator.language.startsWith('ru') ? 'ru' : 'en');
+
+// Auto wallet check
+if (window.solana?.isConnected) $('status').textContent = "✅ Wallet ready";
 </script>
-
 </body>
 </html>
